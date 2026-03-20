@@ -81,43 +81,6 @@ python3 list_categories.py
 python3 list_categories.py --format json
 ```
 
-**示例输出**：
-```
-========================================================================
-  分类名称                         视频数  浏览链接
-  ---------------------------- ------  ------------------------------
-  地产项目视频案例                    42  https://example.com/search?category=uid1
-  人物采访                           18  https://example.com/search?category=uid2
-========================================================================
-  共 2 个分类
-```
-
-### 查询结果示例
-
-```
-📁 地产项目视频案例 - 按类型分类
-
-🏷️ 项目开城/入市/区域视频
-   视频数量: 6
-   🔗 https://49.233.196.151/view?m=F25ed7GiA
-
-🏷️ 人物采访
-   视频数量: 6
-   🔗 https://49.233.196.151/view?m=SF04tKS9C
-
-🏷️ 物业服务
-   视频数量: 4
-   🔗 https://49.233.196.151/view?m=6KXkpLejl
-
-🏷️ 样板间：定妆/亮灯
-   视频数量: 6
-   🔗 https://49.233.196.151/view?m=dc6XYuVHV
-
-🏷️ 定妆/延时/交付/亮灯/体验
-   视频数量: 12
-   🔗 https://49.233.196.151/view?m=s8eKTOQF2
-```
-
 ## API 关键端点
 
 - `POST /api/v1/login` - 登录获取 Token
@@ -147,7 +110,7 @@ sh /workspace/projects/scripts/restart.sh
 ```
 
 ### 上传失败 - 认证错误
-检查 `MEDIACMS_USER` 和 `MEDIACMS_PASS` 是否正确。
+检查 `VIDEO_API_USERNAME` 和 `VIDEO_API_PASSWORD` 是否正确。
 
 ### SSL 证书错误
 脚本已配置忽略 SSL 证书验证（针对自签名证书）。
