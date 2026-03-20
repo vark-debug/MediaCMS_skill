@@ -1,27 +1,28 @@
 ---
 name: MediaCMS_skill
 description: |
-  MediaCMS 视频管理技能。支持：(1) 上传视频并设置分类，(2) 修改视频标题和分类，(3) 查询所有分类及链接。
-  使用场景：用户说"上传视频"、"帮我修改视频标题"、"修改分类"、"查看所有分类"等。
-  需要环境变量：VIDEO_API_BASE_URL（服务器地址）、VIDEO_API_USERNAME（用户名）、VIDEO_API_PASSWORD（密码）
+  MediaCMS video management skill. Supports: (1) uploading videos with optional category assignment,
+  (2) updating video title and/or category, (3) listing all categories with browse links.
+  Trigger phrases: "upload video", "update video title", "change category", "list categories", etc.
+  Required env vars: VIDEO_API_BASE_URL, VIDEO_API_USERNAME, VIDEO_API_PASSWORD
 ---
 
-# MediaCMS 视频管理
+# MediaCMS Video Management
 
-## 环境变量
+## Environment Variables
 
-| 变量名 | 说明 | 示例 |
-|--------|------|------|
-| VIDEO_API_BASE_URL | 服务器地址（不含末尾斜杠） | https://example.com |
-| VIDEO_API_USERNAME | 用户名 | admin |
-| VIDEO_API_PASSWORD | 密码 | your_password |
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VIDEO_API_BASE_URL` | Server base URL (no trailing slash) | `https://media.example.com` |
+| `VIDEO_API_USERNAME` | Login username | `admin` |
+| `VIDEO_API_PASSWORD` | Login password | `your_password` |
 
-**配置方式（OpenClaw）：**
+**Configuration (OpenClaw):**
 
 ```json
 {
   "env": {
-    "VIDEO_API_BASE_URL": "https://example.com",
+    "VIDEO_API_BASE_URL": "https://media.example.com",
     "VIDEO_API_USERNAME": "admin",
     "VIDEO_API_PASSWORD": "your_password"
   }
@@ -30,87 +31,175 @@ description: |
 
 ---
 
-## 功能一：上传视频
+## Feature 1: Upload Video
 
-**脚本**：`upload.py`
+**Script:** `upload.py`
 
 ```bash
-# 仅上传
-python3 upload.py /path/to/video.mp4 "视频标题"
+# Upload only
+python3 upload.py /path/to/video.mp4 "Product Launch"
 
-# 上传并指定分类
-python3 upload.py /path/to/video.mp4 "视频标题" --category "分类名称"
+# Upload and assign a category
+python3 upload.py /path/to/video.mp4 "Product Launch" --category "Marketing"
 
-# 上传并设置描述
-python3 upload.py /path/to/video.mp4 "视频标题" --description "视频描述" --category "分类名称"
+# Upload with description and category
+python3 upload.py /path/to/video.mp4 "Product Launch" --description "Q2 launch event" --category "Marketing"
 ```
 
-**流程**：登录 → 上传 → （可选）设置分类 → 返回视频链接
+**Flow:** Login → Upload file → (optional) Set category → Return video URL
+
+**Example output:**
+```
+Logging in...
+Login successful
+
+Uploading: /path/to/video.mp4
+Title: Product Launch
+
+✅ Upload successful!
+   Title     : Product Launch
+   Token     : aB3xYz9K
+   Video URL : https://media.example.com/view?m=aB3xYz9K
+
+Setting category: Marketing
+✅ Category set successfully
+
+🎉 Done! Video URL: https://media.example.com/view?m=aB3xYz9K
+```
 
 ---
 
-## 功能二：修改标题 / 分类
+## Feature 2: Update Title / Category
 
-**脚本**：`update_category.py`
+**Script:** `update_category.py`
 
 ```bash
-# 通过 friendly_token 修改标题
-python3 update_category.py <token> --title "新标题"
+# Update title by friendly_token
+python3 update_category.py aB3xYz9K --title "New Title"
 
-# 通过 friendly_token 替换分类（自动移除旧分类，添加新分类）
-python3 update_category.py <token> --category "新分类名"
+# Replace category (removes existing categories, adds new one)
+python3 update_category.py aB3xYz9K --category "Events"
 
-# 同时修改标题和分类
-python3 update_category.py <token> --title "新标题" --category "新分类名"
+# Update both title and category
+python3 update_category.py aB3xYz9K --title "New Title" --category "Events"
 
-# 先搜索再修改
-python3 update_category.py --search "关键词" --title "新标题" --category "新分类名"
+# Search by keyword, then update
+python3 update_category.py --search "launch" --title "New Title" --category "Events"
+```
+
+**Flow:** Login → (optional) Search video → Update title via PUT → Replace category via bulk_actions
+
+**Example output — title update:**
+```
+Logging in...
+Login successful
+
+Updating title -> New Title
+✅ Title updated successfully
+
+✅ Done (token: aB3xYz9K)
+```
+
+**Example output — search + category update:**
+```
+Logging in...
+Login successful
+
+Searching videos: launch
+Found 3 matching videos:
+  1. Product Launch 2024  (token: aB3xYz9K)
+  2. Launch Event Recap   (token: mN7qRs2T)
+  3. Pre-Launch Teaser    (token: wE5uVc4P)
+Please enter number: 1
+
+Replacing category -> Events
+✅ Category replaced successfully
+
+✅ Done (token: aB3xYz9K)
 ```
 
 ---
 
-## 功能三：查询分类列表（含链接）
+## Feature 3: List Categories
 
-**脚本**：`list_categories.py`
+**Script:** `list_categories.py`
 
 ```bash
-# 表格形式输出（默认）
+# Table format (default)
 python3 list_categories.py
 
-# JSON 格式输出
+# JSON format
 python3 list_categories.py --format json
 ```
 
-## API 关键端点
+**Flow:** Login → GET /api/v1/categories → Format and print name, video count, browse link
 
-- `POST /api/v1/login` - 登录获取 Token
-- `GET /api/v1/categories` - 获取分类列表（需认证）
-- `POST /api/v1/media` - 上传视频（需认证，multipart/form-data）
-- `GET /api/v1/media?category={uid}` - 获取分类下的视频
-- `POST /api/v1/media/user/bulk_actions` - 批量操作（设置分类等）
+**Example output — table:**
+```
+========================================================================
+  Category Name                  Videos  Browse Link
+  ---------------------------- -------  --------------------------------
+  Marketing                         24  https://media.example.com/search?category=uid-001
+  Product Demos                     18  https://media.example.com/search?category=uid-002
+  Events                            11  https://media.example.com/search?category=uid-003
+  Training                           6  https://media.example.com/search?category=uid-004
+========================================================================
+  4 categories total
+```
 
-## 认证方式
+**Example output — JSON:**
+```json
+[
+  {
+    "title": "Marketing",
+    "uid": "uid-001",
+    "media_count": 24,
+    "url": "https://media.example.com/search?category=uid-001"
+  },
+  {
+    "title": "Product Demos",
+    "uid": "uid-002",
+    "media_count": 18,
+    "url": "https://media.example.com/search?category=uid-002"
+  }
+]
+```
 
-Token-based Auth：登录获取 Token，后续请求使用 `Authorization: Token {token}`
+---
 
-## 脚本文件
+## Key API Endpoints
 
-| 文件名 | 功能 |
-|--------|------|
-| `upload.py` | 上传视频到 MediaCMS |
-| `query_videos.py` | 按业务类型查询视频分类 |
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| `POST` | `/api/v1/login` | Obtain auth token |
+| `GET` | `/api/v1/categories` | List all categories |
+| `POST` | `/api/v1/media` | Upload video (multipart/form-data) |
+| `PUT` | `/api/v1/media/{token}` | Update video title/description |
+| `POST` | `/api/v1/media/user/bulk_actions` | Add/remove categories |
 
-## 常见问题
+## Authentication
 
-### 环境变量未生效
+Token-based: login once to get a token, then pass `Authorization: Token <token>` on all subsequent requests.
 
-重启 OpenClaw 服务：
+## Script Files
+
+| File | Purpose |
+|------|---------|
+| `mediacms_client.py` | Shared client (login, request wrapper) |
+| `upload.py` | Upload video |
+| `update_category.py` | Update title and/or category |
+| `list_categories.py` | List categories with links |
+
+## Troubleshooting
+
+### Environment variables not taking effect
+Restart OpenClaw:
 ```bash
 sh /workspace/projects/scripts/restart.sh
 ```
 
-### 上传失败 - 认证错误
-检查 `VIDEO_API_USERNAME` 和 `VIDEO_API_PASSWORD` 是否正确。
+### Upload failed — authentication error (401)
+Verify `VIDEO_API_USERNAME` and `VIDEO_API_PASSWORD`.
 
-### SSL 证书错误
-脚本已配置忽略 SSL 证书验证（针对自签名证书）。
+### SSL certificate error
+Scripts are configured to skip SSL verification for self-signed certificates.

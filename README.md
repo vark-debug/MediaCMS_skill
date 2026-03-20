@@ -1,12 +1,14 @@
-# MediaCMS 视频管理技能
+# MediaCMS Video Management Skill
 
-> 支持视频上传、标题/分类修改、分类查询，基于 MediaCMS REST API
+> Upload videos, update titles/categories, and list categories — powered by the MediaCMS REST API.
 
-## 📦 快速开始
+**Language / 语言：** English | [中文](README_zh.md)
 
-### 1. 配置环境变量
+## 📦 Quick Start
 
-在 OpenClaw 配置文件中添加：
+### 1. Set Environment Variables
+
+Add the following to your OpenClaw config file:
 
 ```json
 {
@@ -18,7 +20,7 @@
 }
 ```
 
-或通过 Shell 导出：
+Or export them in your shell:
 
 ```bash
 export VIDEO_API_BASE_URL=https://your-mediacms-server.com
@@ -26,7 +28,7 @@ export VIDEO_API_USERNAME=your_username
 export VIDEO_API_PASSWORD=your_password
 ```
 
-### 2. 重启 OpenClaw
+### 2. Restart OpenClaw
 
 ```bash
 sh /workspace/projects/scripts/restart.sh
@@ -34,83 +36,99 @@ sh /workspace/projects/scripts/restart.sh
 
 ---
 
-## 🎯 三大功能
+## 🎯 Features
 
-### 功能一：上传视频
+### Feature 1: Upload Video
 
 ```bash
-# 仅上传
-python3 upload.py /path/to/video.mp4 "视频标题"
+# Upload only
+python3 upload.py /path/to/video.mp4 "My Video Title"
 
-# 上传并设置分类
-python3 upload.py /path/to/video.mp4 "视频标题" --category "分类名称"
+# Upload and assign a category
+python3 upload.py /path/to/video.mp4 "My Video Title" --category "Product Demos"
 
-# 上传并设置描述和分类
-python3 upload.py /path/to/video.mp4 "视频标题" --description "视频描述" --category "分类名称"
+# Upload with description and category
+python3 upload.py /path/to/video.mp4 "My Video Title" --description "Q1 launch video" --category "Product Demos"
 ```
 
-### 功能二：修改标题 / 分类
+### Feature 2: Update Title / Category
 
 ```bash
-# 通过 friendly_token 修改标题
-python3 update_category.py <token> --title "新标题"
+# Update title by friendly_token
+python3 update_category.py <token> --title "New Title"
 
-# 替换分类（自动移除旧分类，添加新分类）
-python3 update_category.py <token> --category "新分类名"
+# Replace category (removes old categories, adds new one)
+python3 update_category.py <token> --category "New Category"
 
-# 同时修改标题和分类
-python3 update_category.py <token> --title "新标题" --category "新分类名"
+# Update both title and category
+python3 update_category.py <token> --title "New Title" --category "New Category"
 
-# 搜索视频后修改
-python3 update_category.py --search "关键词" --category "新分类名"
+# Search by keyword, then update
+python3 update_category.py --search "keyword" --category "New Category"
 ```
 
-### 功能三：查询分类列表（返回链接）
+### Feature 3: List Categories (with links)
 
 ```bash
-# 表格形式输出（含视频数和链接）
+# Table format (default)
 python3 list_categories.py
 
-# JSON 格式
+# JSON format
 python3 list_categories.py --format json
 ```
 
 ---
 
-## 📁 文件结构
+## 📁 File Structure
 
-| 文件 | 功能 |
-|------|------|
-| `mediacms_client.py` | 公共 API 客户端（登录、请求封装） |
-| `upload.py` | 上传视频到 MediaCMS |
-| `update_category.py` | 修改视频标题和分类 |
-| `list_categories.py` | 查询所有分类及浏览链接 |
-
----
-
-## ⚙️ 环境变量说明
-
-| 变量名 | 必填 | 说明 |
-|--------|------|------|
-| `VIDEO_API_BASE_URL` | ✅ | 服务器地址，不含末尾斜杠 |
-| `VIDEO_API_USERNAME` | ✅ | 登录用户名 |
-| `VIDEO_API_PASSWORD` | ✅ | 登录密码 |
+| File | Purpose |
+|------|---------|
+| `mediacms_client.py` | Shared API client (login, request helpers) |
+| `upload.py` | Upload a video to MediaCMS |
+| `update_category.py` | Update video title and/or category |
+| `list_categories.py` | List all categories with browse links |
 
 ---
 
-## 🐛 故障排查
+## ⚙️ Environment Variables
 
-### 认证失败 (HTTP 401)
-检查 `VIDEO_API_USERNAME` 和 `VIDEO_API_PASSWORD` 是否正确。
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VIDEO_API_BASE_URL` | ✅ | Server base URL, no trailing slash |
+| `VIDEO_API_USERNAME` | ✅ | Login username |
+| `VIDEO_API_PASSWORD` | ✅ | Login password |
 
-### 连接失败
-检查 `VIDEO_API_BASE_URL` 是否正确，服务器是否在线。
+---
 
-### SSL 证书错误
-脚本已配置忽略自签名证书验证，无需额外处理。
+## 🐛 Troubleshooting
 
-## 🔐 安全提示
+### Authentication failed (HTTP 401)
+Verify `VIDEO_API_USERNAME` and `VIDEO_API_PASSWORD` are correct.
 
-- **不要**将密码提交到代码仓库，始终通过环境变量传入
-- 定期更换密码
+### Connection failed
+Verify `VIDEO_API_BASE_URL` is reachable and the server is online.
+
+### SSL certificate error
+The scripts are configured to skip self-signed certificate verification — no extra action needed.
+
+## 🔐 Security Notes
+
+- **Never** commit passwords to a repository — always pass credentials via environment variables.
+- Rotate passwords regularly.
+
+---
+
+## � Related Links
+
+- [MediaCMS Official Website](https://mediacms.io)
+- [MediaCMS GitHub Repository](https://github.com/mediacms-io/mediacms)
+- [MediaCMS API Documentation](https://demo.mediacms.io/swagger/)
+- [MediaCMS Developer Docs](https://github.com/mediacms-io/mediacms/blob/main/docs/developers_docs.md)
+- [MediaCMS Demo Instance](https://demo.mediacms.io)
+
+---
+
+## �📄 License
+
+MIT License — see [LICENSE](LICENSE) for details.
 
